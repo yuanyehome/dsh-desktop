@@ -53,11 +53,13 @@
 ```
 DSH.app / DSH.exe (Electron)
 ├── 主进程 main.js：探测端口 → 拉起 dsh web → 就绪检测 → 打开窗口 → 退出时回收子进程
-└── Resources/runtime/node/   内置 Node 26 运行时（CI 按平台下载）
-└── Resources/app/node_modules 内置 @deepseek-ai/dsh 及其全部依赖
+├── Resources/runtime/node/     内置 Node 26 运行时（CI 按平台下载）
+└── Resources/dsh-bundle/       内置 @deepseek-ai/dsh 完整依赖树
 ```
 
 dsh 依赖 sharp、node-pty、koffi 等按 Node ABI 编译的原生模块，因此**打包运行时与安装依赖必须使用同一 Node 版本**（当前为 26.3.0）。这也是为什么不用 Electron 内置 Node 直接跑 dsh——ABI 不匹配。
+
+`dsh-bundle/` 是 `npm run bundle-dsh` 在隔离目录里用 npm 解析出的完整安装（含平台专属的可选依赖），打包时整体原样复制进应用，**不经过** electron-builder 的 node_modules 收集器——后者的重复依赖去重逻辑在不同平台的 npm 目录结构下会静默丢弃包（例如 Windows 上丢过 `@deepseek-ai/cordis-plugin-group`）。
 
 ## 从源码构建
 
@@ -68,6 +70,7 @@ git clone <this repo>
 cd dsh-desktop
 npm ci                      # 安装依赖（含 @deepseek-ai/dsh）
 npm run fetch-runtime       # 下载当前平台的内置 Node 运行时
+npm run bundle-dsh          # 在隔离目录装配 dsh 打包用依赖树
 npm start                   # 开发模式运行
 
 # 打包
@@ -101,6 +104,7 @@ main.js                   Electron 主进程：服务器生命周期、就绪探
 preload.js                加载/错误页用到的少量 IPC 桥
 loading.html / error.html 启动页与错误页
 scripts/fetch-runtime.mjs 按平台下载内置 Node 运行时（CI 与本地共用）
+scripts/bundle-dsh.mjs    在隔离目录装配 dsh 打包用依赖树（绕过收集器）
 scripts/make-icon.js      用 Electron 渲染生成应用图标
 build/                    图标资源（icon.icns / icon.png，已提交，CI 直接使用）
 .github/workflows/release.yml  多平台 Release 构建

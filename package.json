@@ -13,12 +13,10 @@
     "start": "electron .",
     "icon": "electron scripts/make-icon.js",
     "fetch-runtime": "node scripts/fetch-runtime.mjs",
+    "bundle-dsh": "node scripts/bundle-dsh.mjs",
     "dist": "electron-builder --mac dmg --arm64 --publish never",
     "dist:win": "electron-builder --win nsis portable --x64 --publish never",
-    "dist:dir": "electron-builder --mac dir --arm64"
-  },
-  "dependencies": {
-    "@deepseek-ai/dsh": "^0.1.0-rc.6"
+    "dist:dir": "electron-builder --mac dir --arm64 --publish never"
   },
   "build": {
     "appId": "com.dsh.desktop",
@@ -41,6 +39,10 @@
       {
         "from": "runtime/node",
         "to": "runtime/node"
+      },
+      {
+        "from": "dsh-bundle/node_modules",
+        "to": "dsh-bundle/node_modules"
       }
     ],
     "electronDownload": {
@@ -86,6 +88,7 @@
     }
   },
   "devDependencies": {
+    "@deepseek-ai/dsh": "^0.1.0-rc.6",
     "electron": "^43.4.0",
     "electron-builder": "^26.15.3"
   },

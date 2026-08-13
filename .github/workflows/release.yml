@@ -46,6 +46,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Assemble dsh bundle (isolated npm-resolved install)
+        run: npm run bundle-dsh
+
       - name: Build (${{ matrix.build-script }})
         run: npm run ${{ matrix.build-script }}
 
@@ -54,10 +57,14 @@ jobs:
         run: |
           if [ "${{ matrix.platform-arch }}" = "win32-x64" ]; then
             test -f "dist/win-unpacked/resources/runtime/node/node.exe"
-            echo "runtime ok: dist/win-unpacked/resources/runtime/node/node.exe"
+            test -f "dist/win-unpacked/resources/dsh-bundle/node_modules/@deepseek-ai/dsh/lib/bin.js"
+            test -d "dist/win-unpacked/resources/dsh-bundle/node_modules/@deepseek-ai/cordis-plugin-group"
+            echo "runtime + dsh bundle verified in win-unpacked"
           else
             test -f "dist/mac-arm64/DSH.app/Contents/Resources/runtime/node/bin/node"
-            echo "runtime ok: dist/mac-arm64/DSH.app/Contents/Resources/runtime/node/bin/node"
+            test -f "dist/mac-arm64/DSH.app/Contents/Resources/dsh-bundle/node_modules/@deepseek-ai/dsh/lib/bin.js"
+            test -d "dist/mac-arm64/DSH.app/Contents/Resources/dsh-bundle/node_modules/@deepseek-ai/cordis-plugin-group"
+            echo "runtime + dsh bundle verified in DSH.app"
           fi
 
       - name: List artifacts

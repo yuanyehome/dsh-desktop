@@ -74,6 +74,12 @@ function runtimeNode() {
 }
 
 function dshBin() {
+  const base = app.isPackaged ? process.resourcesPath : app.getAppPath()
+  // The shipped app carries dsh in an isolated npm-resolved bundle
+  // (extraResources), immune to electron-builder's node_modules collector.
+  const bundled = path.join(base, 'dsh-bundle', 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+  if (fs.existsSync(bundled)) return bundled
+  // Dev fallback: a regular npm install at the project root.
   return path.join(app.getAppPath(), 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 }
 
