@@ -1,0 +1,9 @@
+node_modules/
+dist/
+runtime/
+.npm-cache/
+.electron-builder-cache/
+.electron-cache/
+build/icon.iconset/
+build/icon-1024.png
+.DS_Store

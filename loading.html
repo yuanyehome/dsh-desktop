@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>DSH</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        background: #0b0e14;
+        color: #e6e8ee;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+        user-select: none;
+      }
+      .spinner {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 4px solid rgba(77, 107, 254, 0.25);
+        border-top-color: #4d6bfe;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.02em; }
+      p { font-size: 13px; color: #8b93a7; }
+      code { color: #aab3cc; }
+    </style>
+  </head>
+  <body>
+    <div class="spinner"></div>
+    <h1>DeepSeek Harness</h1>
+    <p>正在启动本地服务 <code>http://127.0.0.1:<span id="port">3080</span></code>…</p>
+    <script>
+      const q = new URLSearchParams(location.search)
+      const port = q.get('port') || '3080'
+      document.getElementById('port').textContent = port
+    </script>
+  </body>
+</html>

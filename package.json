@@ -1,0 +1,98 @@
+{
+  "name": "dsh-desktop",
+  "productName": "DSH",
+  "version": "0.0.1",
+  "description": "DeepSeek Harness desktop wrapper: boots the dsh web server and opens the Web UI in a native window",
+  "main": "main.js",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "dsh-desktop contributors"
+  },
+  "scripts": {
+    "start": "electron .",
+    "icon": "electron scripts/make-icon.js",
+    "fetch-runtime": "node scripts/fetch-runtime.mjs",
+    "dist": "electron-builder --mac dmg --arm64",
+    "dist:win": "electron-builder --win nsis portable --x64",
+    "dist:dir": "electron-builder --mac dir --arm64"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh": "^0.1.0-rc.6"
+  },
+  "build": {
+    "appId": "com.dsh.desktop",
+    "productName": "DSH",
+    "asar": false,
+    "npmRebuild": false,
+    "compression": "normal",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "loading.html",
+      "error.html",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "runtime/node",
+        "to": "runtime/node"
+      }
+    ],
+    "electronDownload": {
+      "cache": ".electron-builder-cache/electron"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
+      "identity": null,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "dmg": {
+      "title": "DSH ${version}",
+      "icon": "build/icon.icns"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3"
+  },
+  "allowScripts": {
+    "@deepseek-ai/dsh-subprocess-local@0.1.0-rc.6": true,
+    "koffi@3.1.4": true,
+    "node-pty@1.1.0": true,
+    "protobufjs@7.6.5": true
+  }
+}

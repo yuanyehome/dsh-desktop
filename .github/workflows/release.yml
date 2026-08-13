@@ -1,0 +1,67 @@
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            platform-arch: darwin-arm64
+            build-script: dist
+            artifacts: dist/*.dmg
+            label: macOS arm64 dmg
+          - os: windows-latest
+            platform-arch: win32-x64
+            build-script: dist:win
+            artifacts: dist/*.exe
+            label: Windows x64 exe
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.label }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # The bundled runtime is Node v26.3.0 and native npm deps (node-pty,
+      # koffi, sharp) must be installed by the SAME version so their prebuilt
+      # ABIs match. npmRebuild is off in package.json, so nothing gets
+      # rebuilt against Electron's ABI.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.3.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Fetch bundled Node runtime (${{ matrix.platform-arch }})
+        run: node scripts/fetch-runtime.mjs ${{ matrix.platform-arch }}
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build (${{ matrix.build-script }})
+        run: npm run ${{ matrix.build-script }}
+
+      - name: List artifacts
+        shell: bash
+        run: ls -lh dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform-arch }}
+          path: ${{ matrix.artifacts }}
+          if-no-files-found: error
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifacts }}
+          generate_release_notes: true

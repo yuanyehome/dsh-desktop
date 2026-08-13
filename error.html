@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>DSH — 出错了</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 40px;
+        background: #0b0e14;
+        color: #e6e8ee;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+      }
+      .badge {
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.12);
+        color: #f87171;
+        font-size: 30px;
+        line-height: 56px;
+        text-align: center;
+      }
+      h1 { font-size: 20px; font-weight: 600; }
+      .msg { max-width: 640px; text-align: center; font-size: 14px; color: #aab3cc; line-height: 1.6; }
+      .actions { display: flex; gap: 12px; }
+      button {
+        padding: 8px 18px;
+        font-size: 13px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: #161b26;
+        color: #e6e8ee;
+      }
+      button.primary { background: #4d6bfe; border-color: #4d6bfe; }
+      button:hover { filter: brightness(1.1); }
+      details {
+        max-width: 720px; width: 100%;
+        background: #11151f;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 10px 14px;
+      }
+      summary { font-size: 13px; color: #8b93a7; cursor: pointer; }
+      pre {
+        margin-top: 10px;
+        font-size: 11px;
+        line-height: 1.5;
+        color: #9aa3b8;
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 320px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="badge">!</div>
+    <h1>DSH 未能启动</h1>
+    <div class="msg" id="message"></div>
+    <div class="actions">
+      <button class="primary" id="retry">重试</button>
+      <button id="logs">打开日志</button>
+    </div>
+    <details id="logbox" hidden>
+      <summary>日志尾部</summary>
+      <pre id="logtext"></pre>
+    </details>
+    <script>
+      const q = new URLSearchParams(location.search)
+      document.getElementById('message').textContent = q.get('message') || '未知错误'
+      const log = q.get('log') || ''
+      if (log) {
+        document.getElementById('logbox').hidden = false
+        document.getElementById('logtext').textContent = log
+      }
+      document.getElementById('retry').addEventListener('click', () => {
+        if (window.dshDesktop) window.dshDesktop.retry()
+      })
+      document.getElementById('logs').addEventListener('click', () => {
+        if (window.dshDesktop) window.dshDesktop.openLogs()
+      })
+    </script>
+  </body>
+</html>
