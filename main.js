@@ -67,7 +67,10 @@ function log(line) {
 
 function runtimeNode() {
   const base = app.isPackaged ? process.resourcesPath : app.getAppPath()
-  return path.join(base, 'runtime', 'node', 'bin', IS_WIN ? 'node.exe' : 'node')
+  // Windows Node distributions put node.exe at the archive root; macOS/Linux
+  // put it under bin/.
+  const bin = IS_WIN ? 'node.exe' : path.join('bin', 'node')
+  return path.join(base, 'runtime', 'node', bin)
 }
 
 function dshBin() {

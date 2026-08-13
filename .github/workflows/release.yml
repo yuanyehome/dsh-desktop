@@ -49,6 +49,17 @@ jobs:
       - name: Build (${{ matrix.build-script }})
         run: npm run ${{ matrix.build-script }}
 
+      - name: Verify bundled runtime made it into the artifact
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform-arch }}" = "win32-x64" ]; then
+            test -f "dist/win-unpacked/resources/runtime/node/node.exe"
+            echo "runtime ok: dist/win-unpacked/resources/runtime/node/node.exe"
+          else
+            test -f "dist/mac-arm64/DSH.app/Contents/Resources/runtime/node/bin/node"
+            echo "runtime ok: dist/mac-arm64/DSH.app/Contents/Resources/runtime/node/bin/node"
+          fi
+
       - name: List artifacts
         shell: bash
         run: ls -lh dist/
