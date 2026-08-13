@@ -14,8 +14,8 @@
  * …). CI passes it explicitly to pin the artifact's target platform.
  */
 
-import { createWriteStream } from 'node:fs'
-import { mkdir, rm, rename, stat } from 'node:fs/promises'
+import { createWriteStream, readdirSync } from 'node:fs'
+import { mkdir, rm, rename, stat, writeFile } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -57,12 +57,9 @@ try {
 } catch {
   const res = await fetch(url, { redirect: 'follow' })
   if (!res.ok) throw new Error(`download failed: HTTP ${res.status}`)
-  const out = createWriteStream(archivePath)
-  await new Promise((resolve, reject) => {
-    res.body.pipe(out)
-    out.on('finish', resolve)
-    out.on('error', reject)
-  })
+  // Node's fetch returns a Web ReadableStream; buffer it directly.
+  const buf = Buffer.from(await res.arrayBuffer())
+  await writeFile(archivePath, buf)
   console.log('downloaded')
 }
 
@@ -76,8 +73,7 @@ if (tar.status !== 0) {
 }
 
 // The archive contains a single folder like node-v26.3.0-darwin-arm64/.
-const entries2 = (await import('node:fs')).readdirSync(extractDir)
-const extracted = entries2.find((name) => name.startsWith('node-v'))
+const extracted = readdirSync(extractDir).find((name) => name.startsWith('node-v'))
 if (!extracted) {
   console.error('could not locate the extracted node folder')
   process.exit(1)
